@@ -7,12 +7,18 @@ import HomeScreen from "../screens/Home";
 import CategoriaScreen from "../screens/CategoriaScreen";
 import CreateScreen from "../screens/CreateScreen";
 import EditScreen from "../screens/EditScreen";
+import LoginScreen from "../screens/LoginScreen";
 
 const Stack = createNativeStackNavigator();
 export function AppNavigation() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="LoginScreen">
+        <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{ title: "ConVive (Campo Mourão)" }}
+        />
         <Stack.Screen
           name="Home"
           component={HomeScreen}

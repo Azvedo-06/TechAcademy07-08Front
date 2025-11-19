@@ -90,7 +90,7 @@ export default function CreateScreen({ navigation, route }) {
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, padding: 20}}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
         >
           <Text style={styles.title}>Criar Novo {tipo}</Text>
 

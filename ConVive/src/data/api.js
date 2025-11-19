@@ -1,4 +1,5 @@
 import { API_URL } from "./config";
+import { getToken, clearToken, saveToken } from "./authStorage";
 
 async function fetchWithTimeout(resource, { timeout = 8000, ...options } = {}) {
   const controller = new AbortController();
@@ -15,6 +16,20 @@ async function fetchWithTimeout(resource, { timeout = 8000, ...options } = {}) {
   }
 }
 
+async function fetchAuth(resource, options = {}) {
+  const token = await getToken();
+
+  const headers = {
+    ...(options.headers || {}),
+    Authorization: token ? `Bearer ${token}` : "",
+  };
+
+  return fetchWithTimeout(resource, {
+    ...options,
+    headers,
+  });
+}
+
 async function handleResponse(res) {
   const json = await res.json().catch(() => ({}));
 
@@ -28,14 +43,39 @@ async function handleResponse(res) {
 
 // ---- Endpoints ---- //
 
+// --- Login --- //
+export default async function login(email, password) {
+  const response = await fetchWithTimeout(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Erro ao fazer login");
+  }
+
+  if (!data.token) {
+    throw new Error("Servidor não retornou token!");
+  }
+  await saveToken(data.token);
+  return {
+    token: data.token,
+  };
+}
+
+export async function logout() {
+  await clearToken();
+}
+
 // --- Users --- //
 export async function getUsers() {
-  const res = await fetchWithTimeout(`${API_URL}/users`, { timeout: 8000 });
+  const res = await fetchAuth(`${API_URL}/users`, { timeout: 8000 });
   return handleResponse(res);
 }
 
 export async function createUsers(usuario) {
-  const res = await fetchWithTimeout(`${API_URL}/users/`, {
+  const res = await fetchAuth(`${API_URL}/users/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(usuario),
@@ -44,14 +84,14 @@ export async function createUsers(usuario) {
 }
 
 export async function deleteUsers(id) {
-  const res = await fetch(`${API_URL}/users/${id}`, {
+  const res = await fetchAuth(`${API_URL}/users/${id}`, {
     method: "DELETE",
   });
   return handleResponse(res);
 }
 
 export async function updateUsers(id, dadosAtualizados) {
-  const res = await fetch(`${API_URL}/users/${id}`, {
+  const res = await fetchAuth(`${API_URL}/users/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dadosAtualizados),
@@ -61,12 +101,12 @@ export async function updateUsers(id, dadosAtualizados) {
 
 // ---- Eventos ---- //
 export async function getEvents() {
-  const res = await fetchWithTimeout(`${API_URL}/events`, { timeout: 8000 });
+  const res = await fetchAuth(`${API_URL}/events`, { timeout: 8000 });
   return handleResponse(res);
 }
 
 export async function createEvent(event) {
-  const res = await fetch(`${API_URL}/events`, {
+  const res = await fetchAuth(`${API_URL}/events`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(event),
@@ -75,14 +115,14 @@ export async function createEvent(event) {
 }
 
 export async function deleteEvent(id) {
-  const res = await fetch(`${API_URL}/events/${id}`, {
+  const res = await fetchAuth(`${API_URL}/events/${id}`, {
     method: "DELETE",
   });
   return handleResponse(res);
 }
 
 export async function updateEvent(id, dadosAtualizados) {
-  const res = await fetch(`${API_URL}/events/${id}`, {
+  const res = await fetchAuth(`${API_URL}/events/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dadosAtualizados),
@@ -92,21 +132,21 @@ export async function updateEvent(id, dadosAtualizados) {
 
 // ---- Informativos ---- //
 // export async function getInformativos() {
-//   const res = await fetchWithTimeout(`${API_URL}/informativos`, {
+//   const res = await fetchAuth(`${API_URL}/informativos`, {
 //     timeout: 8000,
 //   });
 //   return handleResponse(res);
 // }
 
 // export async function deleteInformativos(id) {
-//   const res = await fetch(`${API_URL}/informativos/${id}`, {
+//   const res = await fetchAuth(`${API_URL}/informativos/${id}`, {
 //     method: "DELETE",
 //   });
 //   return handleResponse(res);
 // }
 
 // export async function createInformativos(informativo) {
-//   const res = await fetch(`${API_URL}/informativos`, {
+//   const res = await fetchAuth(`${API_URL}/informativos`, {
 //     method: "POST",
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify(informativo),
@@ -115,7 +155,7 @@ export async function updateEvent(id, dadosAtualizados) {
 // }
 
 // export async function updateInformativos(id, dadosAtualizados) {
-//   const res = await fetch(`${API_URL}/informativos/${id}`, {
+//   const res = await fetchAuth(`${API_URL}/informativos/${id}`, {
 //     method: "PUT",
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify(dadosAtualizados),
@@ -123,22 +163,21 @@ export async function updateEvent(id, dadosAtualizados) {
 //   return handleResponse(res);
 //}
 
-
 // ---- Espaços ---- //
 export async function getSpaces() {
-  const res = await fetchWithTimeout(`${API_URL}/spaces`, { timeout: 8000 });
+  const res = await fetchAuth(`${API_URL}/spaces`, { timeout: 8000 });
   return handleResponse(res);
 }
 
 export async function deleteSpaces(id) {
-  const res = await fetch(`${API_URL}/spaces/${id}`, {
+  const res = await fetchAuth(`${API_URL}/spaces/${id}`, {
     method: "DELETE",
   });
   return handleResponse(res);
 }
 
 export async function createSpaces(espaco) {
-  const res = await fetch(`${API_URL}/spaces`, {
+  const res = await fetchAuth(`${API_URL}/spaces`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(espaco),
@@ -147,7 +186,7 @@ export async function createSpaces(espaco) {
 }
 
 export async function updateSpaces(id, dadosAtualizados) {
-  const res = await fetch(`${API_URL}/spaces/${id}`, {
+  const res = await fetchAuth(`${API_URL}/spaces/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dadosAtualizados),
@@ -156,22 +195,22 @@ export async function updateSpaces(id, dadosAtualizados) {
 }
 
 // ---- Atividades ---- //
-// export async function getAtividades() {
-//   const res = await fetchWithTimeout(`${API_URL}/atividades`, {
+// export async function getactivities() {
+//   const res = await fetchAuth(`${API_URL}/activities`, {
 //     timeout: 8000,
 //   });
 //   return handleResponse(res);
 // }
 
-// export async function deleteAtividades(id) {
-//   const res = await fetch(`${API_URL}/atividades/${id}`, {
+// export async function deleteactivities(id) {
+//   const res = await fetchAuth(`${API_URL}/activities/${id}`, {
 //     method: "DELETE",
 //   });
 //   return handleResponse(res);
 // }
 
-// export async function createAtividades(atividade) {
-//   const res = await fetch(`${API_URL}/atividades`, {
+// export async function createactivities(atividade) {
+//   const res = await fetchAuth(`${API_URL}/activities`, {
 //     method: "POST",
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify(atividade),
@@ -179,8 +218,8 @@ export async function updateSpaces(id, dadosAtualizados) {
 //   return handleResponse(res);
 // }
 
-// export async function updateAtividades(id, dadosAtualizados) {
-//   const res = await fetch(`${API_URL}/atividades/${id}`, {
+// export async function updateactivities(id, dadosAtualizados) {
+//   const res = await fetchAuth(`${API_URL}/activities/${id}`, {
 //     method: "PUT",
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify(dadosAtualizados),

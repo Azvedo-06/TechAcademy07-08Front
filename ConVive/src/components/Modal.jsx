@@ -27,37 +27,50 @@ export default function ModalCard({
   const navigation = useNavigation();
 
   async function handleDelete() {
-    Alert.alert("Excluir", "Deseja realmente excluir este item?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            switch (tipo) {
-              case "eventos":
-                await deleteEvent(selectedItem.id);
-                break;
-              case "informativos":
-                await deleteInformativos(selectedItem.id);
-                break;
-              case "atividades":
-                await deleteAtividades(selectedItem.id);
-                break;
-              case "espacos":
-                await deleteSpaces(selectedItem.id);
-                break;
-            }
-            Alert.alert("Excluído", "Item removido com sucesso!");
-            setModalVisible(false);
-            onRefresh && onRefresh();
-          } catch (err) {
-            Alert.alert("Erro", err.message);
+  const showAlert = (title, message, buttons) => {
+    if (Platform.OS === "web") {
+      // versão simplificada para web
+      const confirmResult = window.confirm(`${title}\n\n${message}`);
+      if (confirmResult) {
+        const deleteBtn = buttons.find(b => b.style === "destructive");
+        deleteBtn && deleteBtn.onPress && deleteBtn.onPress();
+      }
+    } else {
+      Alert.alert(title, message, buttons);
+    }
+  };
+
+  showAlert("Excluir", "Deseja realmente excluir este item?", [
+    { text: "Cancelar", style: "cancel" },
+    {
+      text: "Excluir",
+      style: "destructive",
+      onPress: async () => {
+        try {
+          switch (tipo) {
+            case "eventos":
+              await deleteEvent(selectedItem.id);
+              break;
+            case "informativos":
+              await deleteInformativos(selectedItem.id);
+              break;
+            case "atividades":
+              await deleteAtividades(selectedItem.id);
+              break;
+            case "espacos":
+              await deleteSpaces(selectedItem.id);
+              break;
           }
-        },
+          Alert.alert("Excluído", "Item removido com sucesso!");
+          setModalVisible(false);
+          onRefresh && onRefresh();
+        } catch (err) {
+          Alert.alert("Erro", err.message);
+        }
       },
-    ]);
-  }
+    },
+  ]);
+}
 
   return (
     <Modal
