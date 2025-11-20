@@ -1,20 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator ,
+  ActivityIndicator,
 } from "react-native";
-import { getEvents, getAtividades, getSpaces, getInformativos} from "../data/api";
+import {
+  getEvents,
+  getAtividades,
+  getSpaces,
+  getInformativos,
+  getUsers,
+  logout,
+  getLoggedUser,
+} from "../data/api";
+import MenuPerfil from "../components/MenuPerfil";
 
 export default function HomeScreen({ navigation }) {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [user, setUser] = useState({});
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setMenuVisible(true)}>
+          <Text style={{ fontSize: 22, marginRight: 15 }}>⋮</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  const hundlelogout = async () => {
+    try {
+      await logout();
+      navigation.replace("LoginScreen");
+    } catch (err) {
+      console.error("Erro ao fazer logout:", err);
+    }
+  };
 
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const userData = await getLoggedUser();
+        setUser(userData);
+      } catch (error) {
+        console.log("Erro ao carregar usuário:", error);
+      }
+    }
+
     async function fetchCategorias() {
       try {
         const eventos = await getEvents();
@@ -38,14 +77,21 @@ export default function HomeScreen({ navigation }) {
     }
 
     fetchCategorias();
+    loadUser();
   }, []);
 
   if (loading) return <ActivityIndicator size="large" color="#000" />;
   if (error) return <Text>Erro: {error}</Text>;
 
-
   return (
     <View style={styles.container}>
+      <MenuPerfil
+        visible={menuVisible}
+        user={user}
+        onLogout={hundlelogout}
+        onClose={() => setMenuVisible(false)}
+      />
+
       <Text style={styles.title}>Comunidade que se vive</Text>
       <FlatList
         data={categorias}
@@ -88,5 +134,13 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+    backgroundColor: "#fff",
   },
 });

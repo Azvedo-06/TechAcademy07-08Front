@@ -4,6 +4,7 @@ const PORT = 8080;
 
 
 const FORCE_LAN_IP = '192.168.0.108';
+// const FORCE_LAN_IP = '192.168.15.44';
 
 const isWeb = Platform.OS === 'web';
 const isAndroid = Platform.OS === 'android';

@@ -1,5 +1,6 @@
 import { API_URL } from "./config";
 import { getToken, clearToken, saveToken } from "./authStorage";
+import { jwtDecode } from "jwt-decode";
 
 async function fetchWithTimeout(resource, { timeout = 8000, ...options } = {}) {
   const controller = new AbortController();
@@ -67,6 +68,19 @@ export default async function login(email, password) {
 export async function logout() {
   await clearToken();
 }
+
+export const getLoggedUser = async () => {
+  try {
+    const token = await getToken("token");
+    if (!token) return null;
+
+    const decoded = jwtDecode(token);
+    return decoded;
+  } catch (error) {
+    console.error("Erro ao decodificar token:", error);
+    return null;
+  }
+};
 
 // --- Users --- //
 export async function getUsers() {

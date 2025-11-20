@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#007bff",
+    margin: 10,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -91,6 +92,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  buttonRegister: {
+    width: "50%",
+    backgroundColor: "grey",
+    margin: 8,
+    padding: 8,
+    alignItems: "center",
+    borderRadius: 8,
   },
   error: {
     color: "red",
