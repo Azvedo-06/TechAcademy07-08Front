@@ -11,6 +11,7 @@ export default function MenuPerfil({ visible, user, onLogout, onClose }) {
 
           <Text style={styles.text}>Nome: {user?.name}</Text>
           <Text style={styles.text}>Email: {user?.email}</Text>
+          
           <Text style={styles.text}>Tipo de conta: {user.isAdmin ? "Administrador" : "Usuário comum"}</Text>
 
           <TouchableOpacity style={styles.logout} onPress={onLogout}>

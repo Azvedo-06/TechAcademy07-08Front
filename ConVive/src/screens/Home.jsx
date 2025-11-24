@@ -8,11 +8,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import {
-  getEvents,
-  getAtividades,
-  getSpaces,
-  getInformativos,
-  getUsers,
+  getEvent,
+  getAtividade,
+  getSpace,
+  getInformativo,
+  getUser,
   logout,
   getLoggedUser,
 } from "../data/api";
@@ -56,10 +56,10 @@ export default function HomeScreen({ navigation }) {
 
     async function fetchCategorias() {
       try {
-        const eventos = await getEvents();
-        //const atividades = await getAtividades();
-        const espacos = await getSpaces();
-        //const informativos = await getInformativos();
+        const eventos = await getEvent();
+        //const atividades = await getAtividade();
+        const espacos = await getSpace();
+        //const informativos = await getInformativo();
 
         const data = [
           { id: "eventos", name: "Eventos", items: eventos },

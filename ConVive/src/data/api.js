@@ -83,12 +83,12 @@ export const getLoggedUser = async () => {
 };
 
 // --- Users --- //
-export async function getUsers() {
+export async function getUser() {
   const res = await fetchAuth(`${API_URL}/users`, { timeout: 8000 });
   return handleResponse(res);
 }
 
-export async function createUsers(usuario) {
+export async function createUser(usuario) {
   const res = await fetchAuth(`${API_URL}/users/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -97,14 +97,14 @@ export async function createUsers(usuario) {
   return handleResponse(res);
 }
 
-export async function deleteUsers(id) {
+export async function deleteUser(id) {
   const res = await fetchAuth(`${API_URL}/users/${id}`, {
     method: "DELETE",
   });
   return handleResponse(res);
 }
 
-export async function updateUsers(id, dadosAtualizados) {
+export async function updateUser(id, dadosAtualizados) {
   const res = await fetchAuth(`${API_URL}/users/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -114,7 +114,7 @@ export async function updateUsers(id, dadosAtualizados) {
 }
 
 // ---- Eventos ---- //
-export async function getEvents() {
+export async function getEvent() {
   const res = await fetchAuth(`${API_URL}/events`, { timeout: 8000 });
   return handleResponse(res);
 }
@@ -144,53 +144,20 @@ export async function updateEvent(id, dadosAtualizados) {
   return handleResponse(res);
 }
 
-// ---- Informativos ---- //
-// export async function getInformativos() {
-//   const res = await fetchAuth(`${API_URL}/informativos`, {
-//     timeout: 8000,
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function deleteInformativos(id) {
-//   const res = await fetchAuth(`${API_URL}/informativos/${id}`, {
-//     method: "DELETE",
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function createInformativos(informativo) {
-//   const res = await fetchAuth(`${API_URL}/informativos`, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(informativo),
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function updateInformativos(id, dadosAtualizados) {
-//   const res = await fetchAuth(`${API_URL}/informativos/${id}`, {
-//     method: "PUT",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(dadosAtualizados),
-//   });
-//   return handleResponse(res);
-//}
-
 // ---- Espaços ---- //
-export async function getSpaces() {
+export async function getSpace() {
   const res = await fetchAuth(`${API_URL}/spaces`, { timeout: 8000 });
   return handleResponse(res);
 }
 
-export async function deleteSpaces(id) {
+export async function deleteSpace(id) {
   const res = await fetchAuth(`${API_URL}/spaces/${id}`, {
     method: "DELETE",
   });
   return handleResponse(res);
 }
 
-export async function createSpaces(espaco) {
+export async function createSpace(espaco) {
   const res = await fetchAuth(`${API_URL}/spaces`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -199,7 +166,7 @@ export async function createSpaces(espaco) {
   return handleResponse(res);
 }
 
-export async function updateSpaces(id, dadosAtualizados) {
+export async function updateSpace(id, dadosAtualizados) {
   const res = await fetchAuth(`${API_URL}/spaces/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -207,36 +174,3 @@ export async function updateSpaces(id, dadosAtualizados) {
   });
   return handleResponse(res);
 }
-
-// ---- Atividades ---- //
-// export async function getactivities() {
-//   const res = await fetchAuth(`${API_URL}/activities`, {
-//     timeout: 8000,
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function deleteactivities(id) {
-//   const res = await fetchAuth(`${API_URL}/activities/${id}`, {
-//     method: "DELETE",
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function createactivities(atividade) {
-//   const res = await fetchAuth(`${API_URL}/activities`, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(atividade),
-//   });
-//   return handleResponse(res);
-// }
-
-// export async function updateactivities(id, dadosAtualizados) {
-//   const res = await fetchAuth(`${API_URL}/activities/${id}`, {
-//     method: "PUT",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(dadosAtualizados),
-//   });
-//   return handleResponse(res);
-// }

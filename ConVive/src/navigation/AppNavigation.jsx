@@ -8,6 +8,7 @@ import CategoriaScreen from "../screens/CategoriaScreen";
 import CreateScreen from "../screens/CreateScreen";
 import EditScreen from "../screens/EditScreen";
 import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 
 const Stack = createNativeStackNavigator();
 export function AppNavigation() {
@@ -28,6 +29,11 @@ export function AppNavigation() {
           name="Categorias"
           component={CategoriaScreen}
           options={{ title: "ConVive (Campo Mourão)" }}
+        />
+        <Stack.Screen
+          name="Registrar"
+          component={RegisterScreen}
+          options={{ title: "ConVive (Campo Mourão) | Criar Conta" }}
         />
         <Stack.Screen name="Participe" component={ParticipeScreen} />
         <Stack.Screen name="Criar" component={CreateScreen} />

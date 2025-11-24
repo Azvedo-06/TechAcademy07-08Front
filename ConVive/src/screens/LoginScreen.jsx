@@ -17,11 +17,13 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     try {
       const response = await login(email, password);
+       console.log("Resposta do login:", response);
       const token = response.token;
       if (!token) {
         setError("Token não retornado pelo servidor.");
         return;
       }
+
       await saveToken(token);
       console.log("Token salvo:", token);
       navigation.navigate("Home");
@@ -55,6 +57,9 @@ export default function LoginScreen({ navigation }) {
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.buttonRegister} onPress={() => navigation.navigate("Registrar")}>
+        <Text style={styles.buttonText}>Registrar-se</Text>
       </TouchableOpacity>
     </View>
   );

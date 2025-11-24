@@ -6,6 +6,7 @@ export default function ParticipeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Participe!</Text>
+      <Text style={styles.title2}>Formulário de participação</Text>
 
       <View style={styles.content}>
         <QuadroParticipacao />
@@ -26,6 +27,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  title2: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   content: {
     width: "100%",

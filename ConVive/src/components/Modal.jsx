@@ -8,13 +8,14 @@ import {
   StyleSheet,
   Modal,
   Alert,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   deleteEvent,
-  deleteInformativos,
-  deleteAtividades,
-  deleteSpaces,
+  deleteInformativo,
+  deleteAtividade,
+  deleteSpace,
 } from "../data/api";
 
 export default function ModalCard({
@@ -52,13 +53,13 @@ export default function ModalCard({
               await deleteEvent(selectedItem.id);
               break;
             case "informativos":
-              await deleteInformativos(selectedItem.id);
+              await deleteInformativo(selectedItem.id);
               break;
             case "atividades":
-              await deleteAtividades(selectedItem.id);
+              await deleteAtividade(selectedItem.id);
               break;
             case "espacos":
-              await deleteSpaces(selectedItem.id);
+              await deleteSpace(selectedItem.id);
               break;
           }
           Alert.alert("Excluído", "Item removido com sucesso!");

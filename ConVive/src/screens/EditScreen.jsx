@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput, Button, Alert, StyleSheet } from "react-native";
+import { API_URL } from "../data/config";
+
 import {
   updateEvent,
-  updateAtividades,
-  updateEspacos,
-  updateInformativos,
+  updateAtividade,
+  updateSpace,
+  updateInformativo,
 } from "../data/api";
 
 export default function EditarItemScreen({ route, navigation }) {
@@ -47,13 +49,13 @@ export default function EditarItemScreen({ route, navigation }) {
           await updateEvent(item.id, dadosAtualizados);
           break;
         case "espacos":
-          await updateEspacos(item.id, dadosAtualizados);
+          await updateSpace(item.id, dadosAtualizados);
           break;
         case "informativos":
-          await updateInformativos(item.id, dadosAtualizados);
+          await updateInformativo(item.id, dadosAtualizados);
           break;
         case "atividades":
-          await updateAtividades(item.id, dadosAtualizados);
+          await updateAtividade(item.id, dadosAtualizados);
           break;
       }
 

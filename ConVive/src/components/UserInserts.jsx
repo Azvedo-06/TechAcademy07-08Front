@@ -32,8 +32,6 @@ export default function QuadroParticipacao() {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Formulário de Participação</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Nome"
