@@ -12,7 +12,6 @@ import {
   getAtividade,
   getSpace,
   getInformativo,
-  getUser,
   logout,
   getLoggedUser,
 } from "../data/api";

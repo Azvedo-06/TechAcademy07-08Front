@@ -96,6 +96,7 @@ export default function ModalCard({
                   />
                 ) : null}
                 <Text style={styles.modalTitle}>{selectedItem.title}</Text>
+                <Text style={styles.modalDescription}>{selectedItem.date}</Text>
                 {selectedItem.descriptionModal ? (
                   <Text style={styles.modalDescription}>
                     {selectedItem.descriptionModal}

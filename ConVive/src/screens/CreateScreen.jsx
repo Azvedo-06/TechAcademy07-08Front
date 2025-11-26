@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getToken } from "../data/authStorage";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 import {
   createEvent,
@@ -44,8 +44,28 @@ export default function CreateScreen({ navigation, route }) {
     camposPorTipo[tipo].reduce((acc, campo) => ({ ...acc, [campo]: "" }), {})
   );
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  // Carrega espaços se for tipo eventos
+  const validate = () => {
+    const newErrors = {};
+    camposPorTipo[tipo].forEach((campo) => {
+      if (campo === "spaceId") {
+        if (!form.spaceId) {
+          newErrors.spaceId = "Selecione um espaço";
+        }
+        return;
+      }
+
+      if (!(form[campo] ?? "").toString().trim()) {
+        newErrors[campo] = `O campo ${campo} é obrigatório`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Carregar espaços somente para eventos
   useEffect(() => {
     if (tipo === "eventos") {
       (async () => {
@@ -68,13 +88,9 @@ export default function CreateScreen({ navigation, route }) {
   };
 
   const formatData = async (form) => {
-  try {
-    const token = await getToken(); 
-    if (!token) throw new Error("Usuário não encontrado no token");
-
+    const token = await getToken();
     const decoded = jwtDecode(token);
     const userId = decoded.id || decoded.userId || decoded.sub;
-    if (!userId) throw new Error("Usuário não encontrado no token");
 
     return {
       ...form,
@@ -82,28 +98,11 @@ export default function CreateScreen({ navigation, route }) {
       date: form.date ? new Date(form.date).toISOString() : undefined,
       spaceId: form.spaceId ? Number(form.spaceId) : undefined,
       imageUrl: form.imageUrl || undefined,
-      descriptionCard: form.descriptionCard || "",
-      descriptionModal: form.descriptionModal || "",
     };
-  } catch (err) {
-    console.log("Erro ao pegar usuário logado:", err);
-    throw err;
-  }
-};
+  };
 
   const handleSalvar = async () => {
-    if (!form.title || (camposPorTipo[tipo].includes("date") && !form.date)) {
-      Alert.alert(
-        "Atenção",
-        "Preencha pelo menos o título e a data (se houver)."
-      );
-      return;
-    }
-
-    if (tipo === "eventos" && (!form.spaceId || isNaN(form.spaceId))) {
-      Alert.alert("Erro", "Selecione um espaço válido.");
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
     try {
@@ -129,12 +128,13 @@ export default function CreateScreen({ navigation, route }) {
       navigation.goBack();
     } catch (err) {
       console.log("ERRO AO CRIAR:", err);
-      Alert.alert("Erro", err.message || "Ocorreu um erro ao criar o item.");
+      Alert.alert("Erro", err.message || "Erro ao criar o item.");
     } finally {
       setLoading(false);
     }
   };
 
+  // RENDERIZAÇÃO DOS CAMPOS
   const renderField = (campo) => {
     if (campo === "spaceId") {
       return (
@@ -143,28 +143,34 @@ export default function CreateScreen({ navigation, route }) {
           <Picker
             selectedValue={form.spaceId}
             onValueChange={(val) => handleChange("spaceId", val)}
-            style={styles.input}
+            style={[
+              styles.input,
+              errors[campo] && styles.inputError,
+            ]}
           >
-            <Picker.Item label="Selecione um espaço" value="" key="default" />
-            {Array.isArray(spaces) &&
-              spaces.map((space, index) => (
-                <Picker.Item
-                  key={space.id ?? `temp-${index}`}
-                  label={space.title ?? "Sem nome"}
-                  value={space.id ?? ""}
-                />
-              ))}
+            <Picker.Item label="Selecione um espaço" value="" />
+            {spaces.map((space) => (
+              <Picker.Item
+                key={space.id}
+                label={space.title}
+                value={space.id}
+              />
+            ))}
           </Picker>
+          {errors[campo] && (
+            <Text style={styles.errorText}>{errors[campo]}</Text>
+          )}
         </View>
       );
     }
 
     const isMultiline = campo.includes("description");
+
     const placeholderMap = {
       title: "Digite o título",
       date: "AAAA-MM-DD",
       imageUrl: "https://exemplo.com/imagem.jpg",
-      descriptionCard: "Descrição curta",
+      descriptionCard: "Resumo curto",
       descriptionModal: "Descrição completa",
     };
 
@@ -176,8 +182,15 @@ export default function CreateScreen({ navigation, route }) {
           onChangeText={(text) => handleChange(campo, text)}
           placeholder={placeholderMap[campo] || campo}
           multiline={isMultiline}
-          style={[styles.input, isMultiline && { height: 80 }]}
+          style={[
+            styles.input,
+            isMultiline && { height: 80 },
+            errors[campo] && styles.inputError,
+          ]}
         />
+        {errors[campo] && (
+          <Text style={styles.errorText}>{errors[campo]}</Text>
+        )}
       </View>
     );
   };
@@ -187,7 +200,7 @@ export default function CreateScreen({ navigation, route }) {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView style={{ padding: 16 }}>
+      <ScrollView style={{ padding: 5 }}>
         {camposPorTipo[tipo].map((campo) => renderField(campo))}
 
         <TouchableOpacity
@@ -205,11 +218,6 @@ export default function CreateScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
   label: {
     fontSize: 16,
     marginBottom: 6,
@@ -220,25 +228,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    marginBottom: 16,
     fontSize: 16,
+    marginBottom: 4,
+  },
+  errorText: {
+    color: "red",
+    marginTop: 4,
+    fontSize: 13,
   },
   button: {
     backgroundColor: "#28a745",
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
+    marginTop: 0,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 15,
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 5,
+  inputError: {
+    borderColor: "red",
   },
 });

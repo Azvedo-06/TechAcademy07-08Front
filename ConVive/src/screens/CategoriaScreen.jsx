@@ -83,7 +83,7 @@ export default function CategoriaScreen({ route }) {
       {item.imageUrl && (
         <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
       )}
-      <Text style={styles.cardTitle}>{item.title || "Sem título"}</Text>
+      <Text style={styles.cardTitle}>{item.title}</Text>
       {item.descriptionCard && (
         <Text style={styles.cardSubtitle}>{item.descriptionCard}</Text>
       )}
