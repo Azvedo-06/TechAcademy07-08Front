@@ -9,10 +9,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getToken } from "../data/authStorage";
 import { jwtDecode } from "jwt-decode";
+import * as ImagePicker from "expo-image-picker";
 
 import {
   createEvent,
@@ -21,6 +23,7 @@ import {
   createInformativo,
   getSpace,
 } from "../data/api";
+import { API_URL } from "../data/config";
 
 export default function CreateScreen({ navigation, route }) {
   const { tipo } = route.params;
@@ -41,7 +44,10 @@ export default function CreateScreen({ navigation, route }) {
 
   const [spaces, setSpaces] = useState([]);
   const [form, setForm] = useState(
-    camposPorTipo[tipo].reduce((acc, campo) => ({ ...acc, [campo]: "" }), {})
+    camposPorTipo[tipo].reduce((acc, campo) => {
+      acc[campo] = campo === "imageUrl" ? null : "";
+      return acc;
+    }, {})
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -56,6 +62,11 @@ export default function CreateScreen({ navigation, route }) {
         return;
       }
 
+      if (campo === "imageUrl" && tipo === "espacos") {
+        if (!form.imageUrl) newErrors.imageUrl = "Selecione uma imagem";
+        return;
+      }
+
       if (!(form[campo] ?? "").toString().trim()) {
         newErrors[campo] = `O campo ${campo} é obrigatório`;
       }
@@ -63,6 +74,30 @@ export default function CreateScreen({ navigation, route }) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+
+      // Para web, precisamos de File
+      let file =
+        asset.file ??
+        new File([asset.uri], "foto.jpg", {
+          type: asset.type || "image/jpeg",
+        });
+
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: asset.uri,
+        imageFile: file,
+      }));
+    }
   };
 
   // Carregar espaços somente para eventos
@@ -107,6 +142,21 @@ export default function CreateScreen({ navigation, route }) {
     setLoading(true);
     try {
       const novoItem = await formatData(form);
+      let dataToSend;
+
+      if (tipo === "espacos") {
+        dataToSend = new FormData();
+
+        dataToSend.append("title", novoItem.title);
+        dataToSend.append("descriptionCard", novoItem.descriptionCard);
+        dataToSend.append("descriptionModal", novoItem.descriptionModal);
+
+        if (tipo === "espacos" && form.imageFile) {
+          dataToSend.append("image", form.imageFile);
+        }
+      } else {
+        dataToSend = novoItem;
+      }
 
       switch (tipo) {
         case "eventos":
@@ -116,7 +166,7 @@ export default function CreateScreen({ navigation, route }) {
           await createAtividade(novoItem);
           break;
         case "espacos":
-          await createSpace(novoItem);
+          await createSpace(dataToSend);
           break;
         case "informativos":
           await createInformativo(novoItem);
@@ -143,10 +193,7 @@ export default function CreateScreen({ navigation, route }) {
           <Picker
             selectedValue={form.spaceId}
             onValueChange={(val) => handleChange("spaceId", val)}
-            style={[
-              styles.input,
-              errors[campo] && styles.inputError,
-            ]}
+            style={[styles.input, errors[campo] && styles.inputError]}
           >
             <Picker.Item label="Selecione um espaço" value="" />
             {spaces.map((space) => (
@@ -157,6 +204,42 @@ export default function CreateScreen({ navigation, route }) {
               />
             ))}
           </Picker>
+          {errors[campo] && (
+            <Text style={styles.errorText}>{errors[campo]}</Text>
+          )}
+        </View>
+      );
+    }
+
+    if (campo === "imageUrl") {
+      return (
+        <View key={campo} style={{ marginBottom: 10 }}>
+          <Text style={styles.label}>Imagem</Text>
+
+          <TouchableOpacity onPress={pickImage} style={styles.buttonSelect}>
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              Selecionar Imagem
+            </Text>
+          </TouchableOpacity>
+
+          {form.imageUrl && (
+            <Image
+              source={{
+                uri:
+                  Platform.OS === "web"
+                    ? form.imageUrl
+                    : `${API_URL}${form.imageUrl}`,
+              }}
+              style={{
+                width: "100%",
+                height: 200,
+                marginTop: 10,
+                borderRadius: 8,
+              }}
+              resizeMode="cover"
+            />
+          )}
+
           {errors[campo] && (
             <Text style={styles.errorText}>{errors[campo]}</Text>
           )}
@@ -175,7 +258,7 @@ export default function CreateScreen({ navigation, route }) {
     };
 
     return (
-      <View key={campo} style={{ marginBottom: 12 }}>
+      <View key={campo} style={{ marginBottom: 30 }}>
         <Text style={styles.label}>{campo}</Text>
         <TextInput
           value={form[campo]}
@@ -188,9 +271,7 @@ export default function CreateScreen({ navigation, route }) {
             errors[campo] && styles.inputError,
           ]}
         />
-        {errors[campo] && (
-          <Text style={styles.errorText}>{errors[campo]}</Text>
-        )}
+        {errors[campo] && <Text style={styles.errorText}>{errors[campo]}</Text>}
       </View>
     );
   };
@@ -200,7 +281,7 @@ export default function CreateScreen({ navigation, route }) {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView style={{ padding: 5 }}>
+      <ScrollView style={{ padding: 1 }}>
         {camposPorTipo[tipo].map((campo) => renderField(campo))}
 
         <TouchableOpacity

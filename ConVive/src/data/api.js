@@ -17,18 +17,44 @@ async function fetchWithTimeout(resource, { timeout = 8000, ...options } = {}) {
   }
 }
 
-async function fetchAuth(resource, options = {}) {
+// async function fetchAuth(resource, options = {}) {
+//   const token = await getToken();
+
+//   const headers = {
+//     ...(options.headers || {}),
+//     Authorization: token ? `Bearer ${token}` : "",
+//   };
+
+//   return fetchWithTimeout(resource, {
+//     ...options,
+//     headers,
+//   });
+// }
+export async function fetchAuth(url, options = {}) {
   const token = await getToken();
 
-  const headers = {
-    ...(options.headers || {}),
-    Authorization: token ? `Bearer ${token}` : "",
+  // Se o body for FormData, NÃO setamos Content-Type
+  const isFormData =
+    options.body && typeof options.body === "object" && options.body._parts;
+
+  let headers = {
+    Authorization: `Bearer ${token}`,
   };
 
-  return fetchWithTimeout(resource, {
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (options.headers) {
+    headers = { ...headers, ...options.headers };
+  }
+
+  const config = {
     ...options,
     headers,
-  });
+  };
+
+  return fetch(url, config);
 }
 
 async function handleResponse(res) {
@@ -157,13 +183,21 @@ export async function deleteSpace(id) {
   return handleResponse(res);
 }
 
-export async function createSpace(espaco) {
-  const res = await fetchAuth(`${API_URL}/spaces`, {
+export async function createSpace(formData) {
+  const token = await getToken();
+
+  return fetch(`${API_URL}/spaces`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(espaco),
-  });
-  return handleResponse(res);
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  })
+    .then(res => res.json())
+    .catch(err => {
+      console.log("ERRO createSpace =>", err);
+      throw err;
+    });
 }
 
 export async function updateSpace(id, dadosAtualizados) {

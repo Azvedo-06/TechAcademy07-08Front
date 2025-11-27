@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { API_URL } from "../data/config";
 import { Picker } from "@react-native-picker/picker";
@@ -122,7 +123,10 @@ export default function EditarItemScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 80 }}
+    >
       <Text style={styles.label}>Título</Text>
       <TextInput
         style={[styles.input, errors.titulo && styles.inputError]}
@@ -134,7 +138,7 @@ export default function EditarItemScreen({ route, navigation }) {
 
       {"date" in item && (
         <>
-        <Text style={styles.label}>Data</Text>
+          <Text style={styles.label}>Data</Text>
           <TextInput
             style={[styles.input, errors.data && styles.inputError]}
             value={data}
@@ -225,8 +229,9 @@ export default function EditarItemScreen({ route, navigation }) {
           )}
         </>
       )}
-
-      <Button style={styles.button} title="Salvar alterações" onPress={handleSave} />
+      <TouchableOpacity onPress={handleSave} style={styles.button}>
+        <Text style={styles.buttonText}>Salvar alterações</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -256,6 +261,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#28a745",
     paddingVertical: 12,
     borderRadius: 8,
+    alignItems: "center",
     marginTop: 0,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 15,
   },
 });
